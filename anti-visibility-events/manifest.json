@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "Anti Visibility/Focus Events",
+  "version": "1.0.0",
+  "description": "Blocks visibility/focus events and forces pages to appear focused/visible.",
+  "permissions": [],
+  "host_permissions": ["<all_urls>"],
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_start",
+      "all_frames": true,
+      "match_about_blank": true
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["page.js"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

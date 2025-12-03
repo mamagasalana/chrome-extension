@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "TikTok 2× Speed",
+  "version": "1.0.0",
+  "description": "Enable up to 2× playback speed on TikTok Web with hotkeys and a floating controller.",
+  "host_permissions": ["https://www.tiktok.com/*", "https://*.tiktok.com/*"],
+  "content_scripts": [
+    {
+      "matches": ["https://www.tiktok.com/*", "https://*.tiktok.com/*"],
+      "js": ["content.js"],
+      "run_at": "document_start",
+      "all_frames": true,
+      "match_about_blank": true
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["page.js"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

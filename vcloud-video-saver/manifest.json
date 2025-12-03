@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "VCloud Video Saver",
+  "version": "1.1",
+  "description": "Save videos loaded via https://god-ys.com/vcloud/* using the current session.",
+  "permissions": [
+    "webRequest",
+    "downloads"
+  ],
+  "host_permissions": [
+    "https://god-ys.com/*",
+    "https://media-qhxn-fj-person.qh6oss.ctyunxs.cn/*",
+    "https://sdys123.xyz/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "VCloud Video Saver"
+  }
+}
