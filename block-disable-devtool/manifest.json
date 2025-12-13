@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "Block disable-devtool",
+  "version": "1.0",
+  "description": "Blocks the disable-devtool script (for debugging your own sites).",
+  "permissions": [
+    "declarativeNetRequest",
+    "declarativeNetRequestFeedback"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "declarative_net_request": {
+    "rule_resources": [
+      {
+        "id": "ruleset_1",
+        "enabled": true,
+        "path": "rules_1.json"
+      }
+    ]
+  }
+}
