@@ -6,6 +6,7 @@ console.log("[VCloud Saver] Service worker started");
 const MEDIA_HOSTS = [
   "gdtelecom-jxncfy-gd-person.shusheng1.mini189.cn",
   "media-qhxn-fj-person.qh6oss.ctyunxs.cn",
+  "cloudcube.wuxi.cn/cloudcube-hbwhfy-js-person"
 ];
 
 const MEDIA_HOST_SET = new Set(MEDIA_HOSTS);
