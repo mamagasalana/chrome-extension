@@ -1,20 +1,41 @@
 {
   "manifest_version": 3,
   "name": "VCloud Video Saver",
-  "version": "1.1",
-  "description": "Save videos loaded via https://god-ys.com/vcloud/* using the current session.",
+  "version": "1.2",
+  "description": "Capture vcloud mp4 URL, prevent playback, and provide a download button.",
   "permissions": [
+    "downloads",
+    "tabs",
+    "webNavigation",
+    "declarativeNetRequest",
     "webRequest",
-    "downloads"
+    "storage"
   ],
   "host_permissions": [
     "https://god-ys.com/*",
+    "https://sdys123.xyz/*",
     "https://media-qhxn-fj-person.qh6oss.ctyunxs.cn/*",
-    "https://sdys123.xyz/*"
+    "https://gdtelecom-jxncfy-gd-person.shusheng1.mini189.cn/*"
   ],
   "background": {
     "service_worker": "background.js"
   },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://god-ys.com/*",
+        "https://sdys123.xyz/*"
+      ],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["download.html", "download.js"],
+      "matches": ["<all_urls>"]
+    }
+  ],
   "action": {
     "default_title": "VCloud Video Saver"
   }
