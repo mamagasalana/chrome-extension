@@ -16,7 +16,7 @@
     "https://sdys123.xyz/*",
     "https://media-qhxn-fj-person.qh6oss.ctyunxs.cn/*",
     "https://gdtelecom-jxncfy-gd-person.shusheng1.mini189.cn/*",
-    "https://cloudcube.wuxi.cn/cloudcube-hbwhfy-js-person/*"
+    "https://cloudcube.wuxi.cn/*"
   ],
   "background": {
     "service_worker": "background.js"
