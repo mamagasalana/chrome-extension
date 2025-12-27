@@ -15,10 +15,46 @@ const DNR_RULE_ID = 1;
 // -------------------------
 // Helpers
 // -------------------------
+function vcloudKey(tabId) {
+  return `vcloud_${tabId}`;
+}
+
+function extract_url(fullUrl) {
+  try {
+    const u = new URL(fullUrl);
+
+    // Ensure it's the page you expect
+    if (u.hostname !== "god-ys.com") return null;
+    if (u.pathname !== "/artplayer/index.html") return null;
+
+    // Pull query param `url`
+    const inner = u.searchParams.get("url"); // e.g. "/vcloud/f/.../.../"
+    if (!inner) return null;
+
+    // Normalize + validate it
+    // allow absolute or relative forms just in case
+    const path = inner.startsWith("http")
+      ? new URL(inner).pathname
+      : inner;
+
+    // Extract the vcloud key path
+    const m = path.match(/^\/vcloud\/f\/[^\/]+\/[^\/]+\/?$/i);
+    if (!m) return null;
+
+    // Return without leading slash if you want
+    return 'https://god-ys.com/' +  m[0].replace(/^\//, "").replace(/\/?$/, "/");
+  } catch {
+    return null;
+  }
+}
+
 function isMp4Url(url) {
   return typeof url === "string" && /\.mp4(\?|$)/i.test(url);
 }
-
+function isVcloudFUrl(url) {
+  return typeof url === "string" &&
+    /^https:\/\/god-ys\.com\/artplayer\/index\.html(?:[/?#].*)?$/i.test(url);
+}
 function isExtensionUrl(url) {
   return typeof url === "string" && url.startsWith("chrome-extension://");
 }
@@ -47,23 +83,15 @@ function mp4Key(tabId) {
 chrome.webRequest.onBeforeRequest.addListener(
   (details) => {
     const url = details.url;
-    if (!isMp4Url(url)) return;
+    console.log("found", url);
+    if (!isVcloudFUrl(url)) return;
 
-    let host;
-    try {
-      host = new URL(url).hostname;
-    } catch {
-      return;
-    }
-    if (!MEDIA_HOST_SET.has(host)) return;
-
-    // Save last seen MP4 URL for this tab
-    chrome.storage.session.set({ [mp4Key(details.tabId)]: url });
-    console.log("[VCloud Saver] Captured MP4:", url, "tabId:", details.tabId);
+    chrome.storage.session.set({ [vcloudKey(details.tabId)] : extract_url(url) });
+    console.log("[VCloud Saver] Captured VCloud iframe URL:", url, "tabId:", details.tabId, "frameId:", details.frameId);
   },
   {
-    urls: MEDIA_HOSTS.map((h) => `https://${h}/*.mp4*`),
-    types: ["media", "xmlhttprequest", "other", "sub_frame", "main_frame"],
+    urls: ["https://god-ys.com/artplayer/index.html?*"],
+    types: ["sub_frame", "main_frame", "xmlhttprequest", "other"],
   }
 );
 
@@ -71,26 +99,13 @@ chrome.webRequest.onBeforeRequest.addListener(
 // B) If user directly opens MP4 URL (top-level or iframe nav),
 //    redirect the entire tab to download.html?url=...
 // -------------------------
-chrome.webNavigation.onCommitted.addListener(
-  (details) => {
-    const url = details.url;
-    if (isOurDownloadPage(url)) return;
+chrome.webNavigation.onCommitted.addListener((details) => {
+  if (details.frameId !== 0) return; // only main page nav
 
-    let u;
-    try {
-      u = new URL(url);
-    } catch {
-      return;
-    }
-
-    if (!MEDIA_HOST_SET.has(u.hostname)) return;
-    if (!isMp4Url(u.pathname + u.search)) return;
-
-    console.log("[VCloud Saver] MP4 navigation detected ->", url);
-    chrome.tabs.update(details.tabId, { url: makeDownloadPageUrl(url) });
-  },
-  { url: MEDIA_HOSTS.map((h) => ({ hostEquals: h })) }
-);
+  chrome.storage.session.remove(vcloudKey(details.tabId), () => {
+    console.log("[VCloud Saver] Cleared vcloud for tab", details.tabId, "new url:", details.url);
+  });
+});
 
 // -------------------------
 // C) DNR: Block site-initiated MP4 playback (iframe/video player)
@@ -105,8 +120,7 @@ async function ensureRules() {
           priority: 1,
           action: { type: "block" },
           condition: {
-            urlFilter: ".mp4",
-            requestDomains: MEDIA_HOSTS,
+            urlFilter: "||god-ys.com/artplayer/index.html",
             initiatorDomains: ["god-ys.com", "sdys123.xyz"],
             resourceTypes: ["main_frame", "sub_frame", "media", "xmlhttprequest"],
           },
@@ -169,12 +183,33 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 
     const pageUrl = makeDownloadPageUrl(url);
 
-    if (sender?.tab?.id != null) {
-      chrome.tabs.update(sender.tab.id, { url: pageUrl }, () => sendResponse({ ok: true }));
-      return true;
-    }
+    // if (sender?.tab?.id != null) {
+    //   chrome.tabs.update(sender.tab.id, { url: pageUrl }, () => sendResponse({ ok: true }));
+    //   return true;
+    // }
 
     chrome.tabs.create({ url: pageUrl }, () => sendResponse({ ok: true }));
+    return true;
+  }
+
+  if (msg.type === "OPEN_URL_NEW_TAB") {
+  const url = msg.url;
+  if (!url) return sendResponse({ ok: false, error: "Missing url" });
+
+  chrome.tabs.create({ url }, () => sendResponse({ ok: true }));
+  return true;
+  }
+
+  if (msg.type === "GET_LAST_VCLOUD") {
+    const tabId = sender?.tab?.id;
+    if (tabId == null) {
+      sendResponse({ ok: false, error: "No tabId" });
+      return;
+    }
+
+    chrome.storage.session.get(vcloudKey(tabId), (data) => {
+      sendResponse({ ok: true, url: data[vcloudKey(tabId)] || null });
+    });
     return true;
   }
 });

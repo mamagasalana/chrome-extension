@@ -9,8 +9,11 @@
     return typeof url === "string" && /\.mp4(\?|$)/i.test(url);
   }
 
+  function isVcloudFUrl(url) {
+    return typeof url === "string" && /^https:\/\/god-ys\.com\/vcloud\/f\/[^\/]+\/[^\/]+\/?$/i.test(url);
+  }
   function setMp4(url) {
-    if (!isMp4(url)) return;
+    if (!isVcloudFUrl(url)) return;
     if (state.mp4 === url) return;
 
     state.mp4 = url;
@@ -65,7 +68,7 @@
     btn.addEventListener("click", () => {
     if (!state.mp4) return;
 
-    chrome.runtime.sendMessage({ type: "DOWNLOAD_URL", url: state.mp4 });
+    chrome.runtime.sendMessage({ type: "OPEN_URL_NEW_TAB", url: state.mp4 });
     });
 
   (document.body || document.documentElement).appendChild(btn);
@@ -88,7 +91,7 @@
   // Pull MP4 URL from background (captured via webRequest)
   // -------------------------
   function refreshFromBackground() {
-    chrome.runtime.sendMessage({ type: "GET_LAST_MP4" }, (resp) => {
+    chrome.runtime.sendMessage({ type: "GET_LAST_VCLOUD" }, (resp) => {
       if (chrome.runtime.lastError) return;
       if (resp?.ok && resp.url) setMp4(resp.url);
     });
