@@ -1,7 +1,8 @@
 (() => {
   const TAG = "[VCloud Saver]";
   const state = { mp4: null };
-
+  const PLAYER_HOSTS = ["god-ys.com", "sdys123.xyz"];
+  const PLAYER_HOST_SET = new Set(PLAYER_HOSTS);
   // Show UI only in the top frame (avoid button inside iframe)
   if (window.top !== window.self) return;
 
@@ -10,7 +11,15 @@
   }
 
   function isVcloudFUrl(url) {
-    return typeof url === "string" && /^https:\/\/god-ys\.com\/vcloud\/f\/[^\/]+\/[^\/]+\/?$/i.test(url);
+    if (typeof url !== "string") return false;
+    try {
+      const u = new URL(url);
+      if (!PLAYER_HOST_SET.has(u.hostname)) return false;
+      // this is the thing you actually store: /vcloud/f/<id>/<id>/
+      return /^\/vcloud\/f\/[^\/]+\/[^\/]+\/?$/i.test(u.pathname);
+    } catch {
+      return false;
+    }
   }
   function setMp4(url) {
     if (!isVcloudFUrl(url)) return;
