@@ -3,7 +3,7 @@ console.log("[VCloud Saver] Service worker started");
 // -------------------------
 // Config
 // -------------------------
-const PLAYER_HOSTS = ["god-ys.com", "sdys123.xyz"];
+const PLAYER_HOSTS = ["god-ys.com", "cf.god-ys.com", "sdys123.xyz"];
 const PLAYER_HOST_SET = new Set(PLAYER_HOSTS);
 
 // NOTE: You had MEDIA_HOSTS but you aren't using it below.
@@ -15,7 +15,7 @@ const MEDIA_HOSTS = [
 ];
 
 const MEDIA_HOST_SET = new Set(MEDIA_HOSTS);
-const DNR_RULE_ID = 1;
+const DNR_RULE_IDS = [1, 2, 3];
 
 // -------------------------
 // Helpers
@@ -49,7 +49,7 @@ function isOurDownloadPage(url) {
   }
 }
 
-// Accept both god-ys.com and sdys123.xyz
+// Accept god-ys.com, cf.god-ys.com and sdys123.xyz
 function isVcloudFUrl(url) {
   if (typeof url !== "string") return false;
   try {
@@ -105,6 +105,7 @@ chrome.webRequest.onBeforeRequest.addListener(
   {
     urls: [
       "https://god-ys.com/artplayer/index.html?*",
+      "https://cf.god-ys.com/artplayer/index.html?*",
       "https://sdys123.xyz/artplayer/index.html?*",
     ],
     types: ["sub_frame", "main_frame", "xmlhttprequest", "other"],
@@ -137,7 +138,17 @@ async function ensureRules() {
           action: { type: "block" },
           condition: {
             urlFilter: "||god-ys.com/artplayer/index.html",
-            initiatorDomains: ["god-ys.com", "sdys123.xyz"],
+            initiatorDomains: ["god-ys.com", "cf.god-ys.com", "sdys123.xyz"],
+            resourceTypes: ["main_frame", "sub_frame", "media", "xmlhttprequest"],
+          },
+        },
+        {
+          id: 3,
+          priority: 1,
+          action: { type: "block" },
+          condition: {
+            urlFilter: "||cf.god-ys.com/artplayer/index.html",
+            initiatorDomains: ["god-ys.com", "cf.god-ys.com", "sdys123.xyz"],
             resourceTypes: ["main_frame", "sub_frame", "media", "xmlhttprequest"],
           },
         },
@@ -147,7 +158,7 @@ async function ensureRules() {
           action: { type: "block" },
           condition: {
             urlFilter: "||sdys123.xyz/artplayer/index.html",
-            initiatorDomains: ["god-ys.com", "sdys123.xyz"],
+            initiatorDomains: ["god-ys.com", "cf.god-ys.com", "sdys123.xyz"],
             resourceTypes: ["main_frame", "sub_frame", "media", "xmlhttprequest"],
           },
         },

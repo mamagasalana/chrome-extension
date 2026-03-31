@@ -13,6 +13,7 @@
   ],
   "host_permissions": [
     "https://god-ys.com/*",
+    "https://cf.god-ys.com/*",
     "https://sdys123.xyz/*",
     "https://media-qhxn-fj-person.qh6oss.ctyunxs.cn/*",
     "https://gdtelecom-jxncfy-gd-person.shusheng1.mini189.cn/*",
@@ -25,6 +26,7 @@
     {
       "matches": [
         "https://god-ys.com/*",
+        "https://cf.god-ys.com/*",
         "https://sdys123.xyz/*"
       ],
       "js": ["content.js"],

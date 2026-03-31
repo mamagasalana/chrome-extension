@@ -1,7 +1,7 @@
 (() => {
   const TAG = "[VCloud Saver]";
   const state = { mp4: null };
-  const PLAYER_HOSTS = ["god-ys.com", "sdys123.xyz"];
+  const PLAYER_HOSTS = ["god-ys.com", "cf.god-ys.com", "sdys123.xyz"];
   const PLAYER_HOST_SET = new Set(PLAYER_HOSTS);
   // Show UI only in the top frame (avoid button inside iframe)
   if (window.top !== window.self) return;
